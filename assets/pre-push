@@ -1,3 +1,4 @@
+#!/bin/bash
 AWS="/usr/local/bin/aws"
 AWK="/usr/bin/awk"
 HEAD="/usr/bin/head"
@@ -122,6 +123,9 @@ do_push() {
 
 }
 
+echo "Push detected, current branch: ${current_branch}"
+echo "Mapped branches: (Master) ${BRANCH_NAME_MASTER}, (QA) ${BRANCH_NAME_QA}"
+
 if [[ $ISACTIVE_MASTER != 1 && $current_branch = ${BRANCH_NAME_MASTER} ]]; then
   echo "Code deploy routine is not active (MASTER).. graceful skip"
   exit 0
@@ -145,13 +149,14 @@ if [[ $current_branch = ${BRANCH_NAME_MASTER} ]]; then
   APPLICATION_NAME_RUN=${APPLICATION_NAME_MASTER}
   DEPLOYMENT_GROUP_RUN=${DEPLOYMENT_GROUP_MASTER}
   do_push
-fi
-
-if [[ $current_branch = ${BRANCH_NAME_QA} ]]; then
+elif [[ $current_branch = ${BRANCH_NAME_QA} ]]; then
   RUN_MODE=qa
   APPLICATION_NAME_RUN=${APPLICATION_NAME_QA}
   DEPLOYMENT_GROUP_RUN=${DEPLOYMENT_GROUP_QA}
   do_push
+else
+  echo "Current branch does not match a mapped branch (exiting)"
+  exit 0
 fi
 
 unset do_exit
