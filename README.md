@@ -45,6 +45,11 @@ deployment groups for each environment.  Name your deployment groups "Prod" and
 
 ### 6 - Set your default global GIT variable options for this deployment:
 
+Set the names to be used for the default branch names to be used representing "master" and "qa" - usually you will want the following
+
+    $ git config codedeploy.master.branch master
+    $ git config codedeploy.qa.branch qa
+
 Set the S3 bucket name (i.e. my-code-deployments where the system will upload
 the payload to be deployed after each push)
 

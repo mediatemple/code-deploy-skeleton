@@ -6,22 +6,21 @@ BUCKET_NAME=$(git config --get codedeploy.s3bucket)
 SOURCE_DIR=$(git config --get codedeploy.source)
 DEPLOYMENT_PROFILE=$(git config --get codedeploy.profile)
 
+BRANCH_NAME_MASTER=$(git config --get codedeploy.master.branch)
 ISACTIVE_MASTER=$(git config --get codedeploy.master.active)
 APPLICATION_NAME_MASTER=$(git config --get codedeploy.master.application-name)
 DEPLOYMENT_GROUP_MASTER=$(git config --get codedeploy.master.deployment-group)
 DISABLE_ASG_MASTER=$(git config --get codedeploy.master.disable-scaling)
 ASG_MASTER=$(git config --get codedeploy.master.asg-name)
 
+BRANCH_NAME_QA=$(git config --get codedeploy.qa.branch)
 ISACTIVE_QA=$(git config --get codedeploy.qa.active)
 APPLICATION_NAME_QA=$(git config --get codedeploy.qa.application-name)
 DEPLOYMENT_GROUP_QA=$(git config --get codedeploy.qa.deployment-group)
 DISABLE_ASG_QA=$(git config --get codedeploy.qa.disable-scaling)
 ASG_QA=$(git config --get codedeploy.qa.asg-name)
 
-master_branch='master'
-qa_branch='qa'
-
-policy='[Policy] Never force push or delete the '$master_branch' branch! (Prevented with pre-push hook.)'
+policy='[Policy] Never force push or delete the '${BRANCH_NAME_MASTER}' branch! (Prevented with pre-push hook.)'
 
 current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 
@@ -31,7 +30,7 @@ push_command=$(ps -ocommand= -p $PPID)
 
 is_destructive='force|delete|\-f'
 
-will_remove_master_branch=':'$master_branch
+will_remove_master_branch=':'${BRANCH_NAME_MASTER}
 
 do_resume_asg(){
 
@@ -89,11 +88,11 @@ do_push() {
       echo "Push to codedeploy failed; skipping create-deployment" 1>&2
   else
 
-      if [[ $DISABLE_ASG_MASTER = 1 && $current_branch = $master_branch ]]; then
+      if [[ $DISABLE_ASG_MASTER = 1 && $current_branch = ${BRANCH_NAME_MASTER} ]]; then
           do_suspend_asg $ASG_MASTER
       fi
 
-      if [[ $DISABLE_ASG_QA = 1 && $current_branch = $qa_branch ]]; then
+      if [[ $DISABLE_ASG_QA = 1 && $current_branch = ${BRANCH_NAME_QA} ]]; then
           do_suspend_asg $ASG_QA
       fi
 
@@ -109,11 +108,11 @@ do_push() {
 
       sleep 3
 
-      if [[ $DISABLE_ASG_MASTER = 1 && $current_branch = $master_branch ]]; then
+      if [[ $DISABLE_ASG_MASTER = 1 && $current_branch = ${BRANCH_NAME_MASTER} ]]; then
           do_resume_asg $ASG_MASTER
       fi
 
-      if [[ $DISABLE_ASG_QA = 1 && $current_branch = $qa_branch ]]; then
+      if [[ $DISABLE_ASG_QA = 1 && $current_branch = ${BRANCH_NAME_QA} ]]; then
           do_resume_asg $ASG_QA
       fi
 
@@ -123,17 +122,17 @@ do_push() {
 
 }
 
-if [[ $ISACTIVE_MASTER != 1 && $current_branch = $master_branch ]]; then
+if [[ $ISACTIVE_MASTER != 1 && $current_branch = ${BRANCH_NAME_MASTER} ]]; then
   echo "Code deploy routine is not active (MASTER).. graceful skip"
   exit 0
 fi
 
-if [[ $ISACTIVE_QA != 1 && $current_branch = $qa_branch ]]; then
+if [[ $ISACTIVE_QA != 1 && $current_branch = ${BRANCH_NAME_QA} ]]; then
   echo "Code deploy routine is not active (QA).. graceful skip"
   exit 0
 fi
 
-if [[ $push_command =~ $is_destructive ]] && [[ $current_branch = $master_branch ]]; then
+if [[ $push_command =~ $is_destructive ]] && [[ $current_branch = ${BRANCH_NAME_MASTER} ]]; then
   do_exit
 fi
 
@@ -141,14 +140,14 @@ if [[ $push_command =~ $will_remove_master_branch ]]; then
   do_exit
 fi
 
-if [[ $current_branch = $master_branch ]]; then
+if [[ $current_branch = ${BRANCH_NAME_MASTER} ]]; then
   RUN_MODE=master
   APPLICATION_NAME_RUN=${APPLICATION_NAME_MASTER}
   DEPLOYMENT_GROUP_RUN=${DEPLOYMENT_GROUP_MASTER}
   do_push
 fi
 
-if [[ $current_branch = $qa_branch ]]; then
+if [[ $current_branch = ${BRANCH_NAME_QA} ]]; then
   RUN_MODE=qa
   APPLICATION_NAME_RUN=${APPLICATION_NAME_QA}
   DEPLOYMENT_GROUP_RUN=${DEPLOYMENT_GROUP_QA}
