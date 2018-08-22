@@ -1,0 +1,18 @@
+# This is a sample build configuration for Python.
+# Check our guides at https://confluence.atlassian.com/x/x4UWN for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: python:3.5.1
+
+pipelines:
+  default:
+    - step:
+        # set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_DEFAULT_REGION as environment variables
+        name: Deploy to AWS
+        deployment: production   # set to test, staging or production
+        # trigger: manual  # uncomment to have a manual step
+        image: atlassian/pipelines-awscli
+        script:
+          - aws deploy push --application-name mng-svcs-cd-prod-code-deploy-BasicWP-1JI03RDHIJ10H --s3-location s3://mng-svcs-cd-prod-s3-codedeploy-9opszbp3593w/basicwp --ignore-hidden-files
+          - aws deploy create-deployment --application-name mng-svcs-cd-prod-code-deploy-BasicWP-1JI03RDHIJ10H --s3-location bucket=mng-svcs-cd-prod-s3-codedeploy-9opszbp3593w,key=<s3-key>,bundleType=zip --deployment-group-name DeployMe
