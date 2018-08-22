@@ -15,4 +15,4 @@ pipelines:
         image: atlassian/pipelines-awscli
         script:
           - aws deploy push --application-name mng-svcs-cd-prod-code-deploy-BasicWP-1JI03RDHIJ10H --s3-location s3://mng-svcs-cd-prod-s3-codedeploy-9opszbp3593w/basicwp --ignore-hidden-files
-          - aws deploy create-deployment --application-name mng-svcs-cd-prod-code-deploy-BasicWP-1JI03RDHIJ10H --s3-location bucket=mng-svcs-cd-prod-s3-codedeploy-9opszbp3593w,key=<s3-key>,bundleType=zip --deployment-group-name DeployMe
+          - aws deploy create-deployment --application-name mng-svcs-cd-prod-code-deploy-BasicWP-1JI03RDHIJ10H --s3-location bucket=mng-svcs-cd-prod-s3-codedeploy-9opszbp3593w,key=<s3-key>,bundleType=zip --deployment-group-name mng-svcs-cd-prod-code-deploy-BasicWPGroup-1A7BSFLNLD7H3
